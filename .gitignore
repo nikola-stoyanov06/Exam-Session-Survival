@@ -1,0 +1,21 @@
+# Visual Studio
+.vs/
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+
+# Build folders
+Debug/
+Release/
+x64/
+x86/
+
+# Intermediate files
+*.obj
+*.ilk
+*.pdb
+*.log
+*.tlog
+*.idb
+*.exe
