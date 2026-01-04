@@ -21,6 +21,12 @@ const int EASY = 1;
 const int MEDIUM = 2;
 const int HARD = 3;
 
+const int EASY_KNOWLEDGE = 70, MID_KNOWLEDGE = 50, HARD_KNOWLEDGE = 35;
+const int EASY_STAT = 100, MID_STAT = 80, HARD_STAT = 50;
+
+const int EXAM_COUNT = 5;
+
+const int SCHEDULE[EXAM_COUNT] = {8, 17, 26, 0, 45};
 struct Player {
     int money;
     int energy;
@@ -62,8 +68,80 @@ int chooseDifficulty()
     return validateInput(EASY, HARD);
 }
 
+void createPlayer(Player* player, int diff)
+{
+    player->passedExams = 0;
+    player->currentDay = 1;
+    player->skipNextDay = false;
 
+    switch (diff)
+    {
+        case 1:
+            player->knowledge = EASY_KNOWLEDGE;
+            player->money = EASY_STAT;
+            player->energy = EASY_STAT;
+            player->psyche = EASY_STAT;
+            break;
+        case 2:
+            player->knowledge = MID_KNOWLEDGE;
+            player->money = MID_STAT;
+            player->energy = MID_STAT;
+            player->psyche = MID_STAT;
+            break;
+        case 3:
+            player->knowledge = HARD_KNOWLEDGE;
+            player->money = HARD_STAT;
+            player->energy = HARD_STAT;
+            player->psyche = HARD_STAT;
+            break;
+        default:
+            std::cout << "Error in creating player: Incorrect difficulty";
+            break;
+    }
+}
+
+int randNumInRange(int min, int max)
+{
+    return min + rand() % (max - min + 1);
+}
+
+void generateExamSchedule(int arr[], int count)
+{
+    arr[0] = SCHEDULE[0];
+    arr[1] = SCHEDULE[1];
+    arr[2] = SCHEDULE[2];
+    arr[3] = randNumInRange(SCHEDULE[2] + 1, SCHEDULE[4] - 1);
+    arr[4] = SCHEDULE[4];
+}
+
+void printInitializationInfo(const Player* player, const int examDays[], int examCount) {
+    std::cout << std::endl;
+    std::cout << "Initialization complete." << std::endl;
+    std::cout << "Day: " << player->currentDay << std::endl;
+    std::cout << "Money: " << player->money << std::endl;
+    std::cout << "Energy: " << player->energy << std::endl;
+    std::cout << "Psyche: " << player->psyche << std::endl;
+    std::cout << "Knowledge: " << player->knowledge << std::endl;
+    std::cout << "Passed exams: " << player->passedExams << std::endl;
+
+    std::cout << "Exam days: ";
+    for (int i = 0; i < examCount; i++) {
+        std::cout << examDays[i] << " ";
+    }
+    std::cout << std::endl;
+}
 int main()
 {
-    chooseDifficulty();
+    srand(time(nullptr));
+
+    Player player;
+    int examSchedule[EXAM_COUNT];
+
+    int diff = chooseDifficulty();
+
+    createPlayer(&player, diff);
+
+    generateExamSchedule(examSchedule, EXAM_COUNT);
+
+    printInitializationInfo(&player, examSchedule, EXAM_COUNT);
 }
