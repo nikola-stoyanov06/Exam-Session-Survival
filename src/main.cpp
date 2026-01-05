@@ -21,12 +21,19 @@ const int EASY = 1;
 const int MEDIUM = 2;
 const int HARD = 3;
 
+const int MIN_ACTION = 1, MAX_ACTION = 5;
+
+const int EXIT_CODE = 11;
+
 const int EASY_KNOWLEDGE = 70, MID_KNOWLEDGE = 50, HARD_KNOWLEDGE = 35;
 const int EASY_STAT = 100, MID_STAT = 80, HARD_STAT = 50;
 
 const int EXAM_COUNT = 5;
 
 const int SCHEDULE[EXAM_COUNT] = {8, 17, 26, 0, 45};
+
+const int LINE_WIDTH = 35;
+
 struct Player {
     int money;
     int energy;
@@ -44,6 +51,10 @@ int validateInput(int min, int max)
     while (true)
     {
         std::cin >> input;
+        if (input == EXIT_CODE)
+        {
+            return EXIT_CODE;
+        }
         if (input < min || input > max || std::cin.fail())
         {
             std::cin.clear();
@@ -55,23 +66,51 @@ int validateInput(int min, int max)
     }
 }
 
-void printChoices()
+void printDifficultyChoices()
 {
     std::cout << "Choose difficulty: " << std::endl;
     std::cout << "[1] Easy" << std::endl;
     std::cout << "[2] Normal" << std::endl;
     std::cout << "[3] Hard" << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[11] Exit Game" << std::endl;
     std::cout << "> ";
 }
 
 int chooseDifficulty()
 {
-    printChoices();
+    printDifficultyChoices();
     return validateInput(EASY, HARD);
+}
+
+void printActionChoices()
+{
+    std::cout << "Please Choose an Action:  " << std::endl;
+    std::cout << "[1] Study" << std::endl;
+    std::cout << "[2] Eat" << std::endl;
+    std::cout << "[3] Go Out" << std::endl;
+    std::cout << "[4] Rest" << std::endl;
+    std::cout << "[5] Work" << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[11] Exit Game" << std::endl;
+    std::cout << "> ";
+}
+
+int chooseAction()
+{
+    printActionChoices();
+    return validateInput(MIN_ACTION, MAX_ACTION);
 }
 
 void createPlayer(Player* player, int diff)
 {
+    if (!player)
+        return;
+
     player->passedExams = 0;
     player->currentDay = 1;
     player->skipNextDay = false;
@@ -116,31 +155,67 @@ void generateExamSchedule(int arr[], int count)
     arr[4] = SCHEDULE[4];
 }
 
-void printPlayerStats(const Player* player) {
-    std::cout << "================================" << std::endl;
+int getLength(const char* str)
+{
+    int res = 0;
+    if (!str)
+        return res;
 
-    std::cout << "| PLAYER CONDITION             |" << std::endl;
-    std::cout << "|                              |" << std::endl;
+    while (*str)
+    {
+        res++;
+        str++;
+    }
+    return res;
+}
 
-    std::cout << "| Current Day:    " << player->currentDay;
-    std::cout << "            |" << std::endl;
+int getLength(int num)
+{
+    int res = 0;
+    do
+    {
+        num /= 10;
+        res++;
+    } while (num);
+    return res;
+}
 
-    std::cout << "| Money:         " << player->money;
-    std::cout << "            |" << std::endl;
+void printStatLine(const char* label, int value)
+{
+    if (!label)
+        return;
 
-    std::cout << "| Energy:        " << player->energy;
-    std::cout << "            |" << std::endl;
+    int index = 0;
+    std::cout << "| ";
+    index += 2;
+    std::cout << label << ": ";
+    index += (getLength(label) + 2);
+    std::cout << value;
+    index += getLength(value);
+    while (index < LINE_WIDTH - 1)
+    {
+        std::cout << " ";
+        index++;
+    }
+    std::cout << "|" << std::endl;
+}
 
-    std::cout << "| Psyche:        " << player->psyche;
-    std::cout << "            |" << std::endl;
+void printPlayerStats(const Player* player) 
+{
+    std::cout << "===================================" << std::endl;
 
-    std::cout << "| Knowledge:     " << player->knowledge;
-    std::cout << "            |" << std::endl;
+    std::cout << "| PLAYER CONDITION                |" << std::endl;
+    std::cout << "|                                 |" << std::endl;
 
-    std::cout << "| Exams Passed:  " << player->passedExams << " / " << EXAM_COUNT;
-    std::cout << "         |" << std::endl;
+    printStatLine("Current Day", player->currentDay);
+    printStatLine("Money", player->money);
+    printStatLine("Energy", player->energy);
+    printStatLine("Psyche", player->psyche);
+    printStatLine("Knowledge", player->knowledge);
+    printStatLine("Exams passed", player->passedExams);
 
-    std::cout << "================================" << std::endl;
+    std::cout << "===================================" << std::endl;
+    std::cout << std::endl;
 }
 
 
@@ -152,10 +227,17 @@ int main()
     int examSchedule[EXAM_COUNT];
 
     int diff = chooseDifficulty();
+    if (diff == EXIT_CODE)
+        return 0;
 
     createPlayer(&player, diff);
 
     generateExamSchedule(examSchedule, EXAM_COUNT);
 
     printPlayerStats(&player);
+    int act = chooseAction();
+    if (act == EXIT_CODE)
+        return 0;
+
+    std::cout << "Action chosen: " << act;
 }
