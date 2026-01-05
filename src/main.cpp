@@ -46,7 +46,9 @@ int validateInput(int min, int max)
         std::cin >> input;
         if (input < min || input > max || std::cin.fail())
         {
-            std::cout << "Invalid input! Try again!";
+            std::cin.clear();
+            std::cin.ignore(100, '\n');
+            std::cout << "Invalid input! Try again: > ";
         }
         else
             return input;
@@ -114,22 +116,34 @@ void generateExamSchedule(int arr[], int count)
     arr[4] = SCHEDULE[4];
 }
 
-void printInitializationInfo(const Player* player, const int examDays[], int examCount) {
-    std::cout << std::endl;
-    std::cout << "Initialization complete." << std::endl;
-    std::cout << "Day: " << player->currentDay << std::endl;
-    std::cout << "Money: " << player->money << std::endl;
-    std::cout << "Energy: " << player->energy << std::endl;
-    std::cout << "Psyche: " << player->psyche << std::endl;
-    std::cout << "Knowledge: " << player->knowledge << std::endl;
-    std::cout << "Passed exams: " << player->passedExams << std::endl;
+void printPlayerStats(const Player* player) {
+    std::cout << "================================" << std::endl;
 
-    std::cout << "Exam days: ";
-    for (int i = 0; i < examCount; i++) {
-        std::cout << examDays[i] << " ";
-    }
-    std::cout << std::endl;
+    std::cout << "| PLAYER CONDITION             |" << std::endl;
+    std::cout << "|                              |" << std::endl;
+
+    std::cout << "| Current Day:    " << player->currentDay;
+    std::cout << "            |" << std::endl;
+
+    std::cout << "| Money:         " << player->money;
+    std::cout << "            |" << std::endl;
+
+    std::cout << "| Energy:        " << player->energy;
+    std::cout << "            |" << std::endl;
+
+    std::cout << "| Psyche:        " << player->psyche;
+    std::cout << "            |" << std::endl;
+
+    std::cout << "| Knowledge:     " << player->knowledge;
+    std::cout << "            |" << std::endl;
+
+    std::cout << "| Exams Passed:  " << player->passedExams << " / " << EXAM_COUNT;
+    std::cout << "         |" << std::endl;
+
+    std::cout << "================================" << std::endl;
 }
+
+
 int main()
 {
     srand(time(nullptr));
@@ -143,5 +157,5 @@ int main()
 
     generateExamSchedule(examSchedule, EXAM_COUNT);
 
-    printInitializationInfo(&player, examSchedule, EXAM_COUNT);
+    printPlayerStats(&player);
 }
