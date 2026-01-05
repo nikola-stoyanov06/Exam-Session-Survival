@@ -34,6 +34,8 @@ const int SCHEDULE[EXAM_COUNT] = {8, 17, 26, 0, 45};
 
 const int LINE_WIDTH = 35;
 
+const int SESSION_LENGTH = 45;
+
 struct Player {
     int money;
     int energy;
@@ -218,6 +220,39 @@ void printPlayerStats(const Player* player)
     std::cout << std::endl;
 }
 
+void gameLoop(Player* player, int* examSchedule)
+{
+    bool isRunning = true;
+    while (isRunning)
+    {
+        printPlayerStats(player);
+        int action = chooseAction();
+        switch (action)
+        {
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+                std::cout << "Action chosen. Not yet implemented" << std::endl;
+                break;
+            case 11:
+                std::cout << "Exiting..." << std::endl;
+                isRunning = false;
+                break;
+            default:
+                std::cout << "Incorrect action" << std::endl;
+                break;
+        }
+
+        player->currentDay++;
+        if (player->currentDay > SESSION_LENGTH)
+        {
+            std::cout << "Session end reached";
+            isRunning = false;
+        }
+    }
+}
 
 int main()
 {
@@ -234,10 +269,5 @@ int main()
 
     generateExamSchedule(examSchedule, EXAM_COUNT);
 
-    printPlayerStats(&player);
-    int act = chooseAction();
-    if (act == EXIT_CODE)
-        return 0;
-
-    std::cout << "Action chosen: " << act;
+    gameLoop(&player, examSchedule);
 }
