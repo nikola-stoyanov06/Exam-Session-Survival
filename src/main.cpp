@@ -21,9 +21,9 @@ const int EASY = 1;
 const int MEDIUM = 2;
 const int HARD = 3;
 
-const int MIN_ACTION = 1, MAX_ACTION = 5;
+const int MIN_ACTION = 1, MAX_ACTION = 5, MAX_STUDY_ACTION = 4;
 
-const int EXIT_CODE = 11;
+const int EXIT_CODE = 11, RETURN_CODE = 10;
 
 const int EASY_KNOWLEDGE = 70, MID_KNOWLEDGE = 50, HARD_KNOWLEDGE = 35;
 const int EASY_STAT = 100, MID_STAT = 80, HARD_STAT = 50;
@@ -36,6 +36,11 @@ const int LINE_WIDTH = 35;
 
 const int SESSION_LENGTH = 45;
 
+const int MIN_STAT = 0, MAX_STAT = 100;
+
+const int STUDY_MONEY_COST = -20, STUDY_ENERGY_COST = -30, STUDY_PSYCHE_COST = -30,
+    STUDY_PSYCHE_GAIN = 10, STUDY_KNOWLEDGE_GAIN = 20;
+
 struct Player {
     int money;
     int energy;
@@ -46,6 +51,15 @@ struct Player {
     bool skipNextDay;
 };
 
+int keepInRange(int min, int max, int value)
+{
+    if (value > max)
+        return max;
+    if (value < min)
+        return min;
+
+    return value;
+}
 
 int validateInput(int min, int max)
 {
@@ -55,7 +69,11 @@ int validateInput(int min, int max)
         std::cin >> input;
         if (input == EXIT_CODE)
         {
-            return EXIT_CODE;
+            return input;
+        }
+        if (input == RETURN_CODE)
+        {
+            return input;
         }
         if (input < min || input > max || std::cin.fail())
         {
@@ -77,6 +95,7 @@ void printDifficultyChoices()
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
+    std::cout << "[10] Go Back" << std::endl;
     std::cout << "[11] Exit Game" << std::endl;
     std::cout << "> ";
 }
@@ -98,6 +117,7 @@ void printActionChoices()
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
+    std::cout << "[10] Go Back" << std::endl;
     std::cout << "[11] Exit Game" << std::endl;
     std::cout << "> ";
 }
@@ -106,6 +126,84 @@ int chooseAction()
 {
     printActionChoices();
     return validateInput(MIN_ACTION, MAX_ACTION);
+}
+
+void printStudyChoices()
+{
+    std::cout << "Please Choose How You Plan on Studying:  " << std::endl;
+    std::cout << "[1] Go to the lectures" << std::endl;
+    std::cout << "[2] Study at home" << std::endl;
+    std::cout << "[3] Study with friends" << std::endl;
+    std::cout << "[4] Study at library/cafe" << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[10] Go Back" << std::endl;
+    std::cout << "[11] Exit Game" << std::endl;
+    std::cout << "> ";
+}
+
+int chooseStudyOption()
+{
+    printStudyChoices();
+    return validateInput(MIN_ACTION, MAX_STUDY_ACTION);
+}
+
+bool applyEffects(Player* player, int moneyChange, int energyChange, int psycheChange, int knowledgeChange)
+{
+    if (player->knowledge + knowledgeChange < MIN_STAT) 
+        return false;
+    if (player->energy + energyChange < MIN_STAT) 
+        return false;
+    if (player->psyche + psycheChange < MIN_STAT) 
+        return false;
+    if (player->money + moneyChange < MIN_STAT) 
+        return false;
+
+    player->knowledge += knowledgeChange;
+    player->energy += energyChange;
+    player->psyche += psycheChange;
+    player->money += moneyChange;
+
+    player->knowledge = keepInRange(MIN_STAT, MAX_STAT, player->knowledge);
+    player->energy = keepInRange(MIN_STAT, MAX_STAT, player->energy);
+    player->psyche = keepInRange(MIN_STAT, MAX_STAT, player->psyche);
+    player->money = keepInRange(MIN_STAT, MAX_STAT, player->money);
+
+    return true;
+}
+
+bool study(Player* player)
+{
+    int studyType = chooseStudyOption();
+    bool isSuccessful = false;
+    const int MULTIPLIER = 2;
+    switch (studyType)
+    {
+        case 1:
+            isSuccessful = applyEffects(player, 0, STUDY_ENERGY_COST, 
+                STUDY_PSYCHE_COST, STUDY_KNOWLEDGE_GAIN);
+            break;
+        case 2:
+            isSuccessful = applyEffects(player, 0, STUDY_ENERGY_COST / MULTIPLIER,
+                STUDY_PSYCHE_COST / MULTIPLIER, STUDY_KNOWLEDGE_GAIN / MULTIPLIER);
+            break;
+        case 3:
+            isSuccessful = applyEffects(player, 0, STUDY_ENERGY_COST / MULTIPLIER,
+                STUDY_PSYCHE_GAIN, STUDY_KNOWLEDGE_GAIN / MULTIPLIER);
+            break;
+        case 4:
+            isSuccessful = applyEffects(player, STUDY_MONEY_COST, STUDY_ENERGY_COST / MULTIPLIER,
+                STUDY_PSYCHE_GAIN, STUDY_KNOWLEDGE_GAIN);
+            break;
+        case 11:
+        case 10:
+            return false;
+            break; 
+        default:
+            break;
+    }
+    return isSuccessful;
 }
 
 void createPlayer(Player* player, int diff)
@@ -226,24 +324,37 @@ void gameLoop(Player* player, int* examSchedule)
     while (isRunning)
     {
         printPlayerStats(player);
-        int action = chooseAction();
-        switch (action)
+        
+        bool isSuccessful = false;
+        while (!isSuccessful)
         {
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-                std::cout << "Action chosen. Not yet implemented" << std::endl;
-                break;
-            case 11:
-                std::cout << "Exiting..." << std::endl;
-                isRunning = false;
-                break;
-            default:
-                std::cout << "Incorrect action" << std::endl;
-                break;
+            int action = chooseAction();
+            switch (action)
+            {
+                case 1:
+                    isSuccessful = study(player);
+                    break;
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                    std::cout << "Action chosen. Not yet implemented" << std::endl;
+                    isSuccessful = true;
+                    break;
+                case 10:
+                case 11:
+                    std::cout << "Exiting..." << std::endl;
+                    isSuccessful = true;
+                    isRunning = false;
+                    break;
+                default:
+                    std::cout << "Incorrect action" << std::endl;
+                    break;
+            }
+            if (!isSuccessful)
+                std::cout << "Not enough resources! Choose different action!" << std::endl;
         }
+        
 
         player->currentDay++;
         if (player->currentDay > SESSION_LENGTH)
