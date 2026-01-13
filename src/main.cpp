@@ -39,8 +39,8 @@ const int SESSION_LENGTH = 45;
 
 const int MIN_STAT = 0, MAX_STAT = 100;
 
-const int GAIN_ARR[] = { 0,10,20,30,40,50 };
-const int COST_ARR[] = { 0,-10,-20,-30,-40,-50 };
+const int GAIN_ARR[] = { 0,5,10,20,25,30,40,50 };
+const int COST_ARR[] = { 0,-5,-10,-20,-25,-30,-40,-50 };
 
 struct Player {
     int money;
@@ -192,14 +192,26 @@ int choosePartyOption()
 
 bool applyEffects(Player* player, int moneyChange, int energyChange, int psycheChange, int knowledgeChange)
 {
-    if (player->knowledge + knowledgeChange < MIN_STAT) 
+    if (player->knowledge + knowledgeChange < MIN_STAT)
+    {
+        std::cout << "You are pretty dumb, go study instead!" << std::endl;
         return false;
+    }
     if (player->energy + energyChange < MIN_STAT) 
+    {
+        std::cout << "You are about to pass out, you need rest!" << std::endl;
         return false;
+    }
     if (player->psyche + psycheChange < MIN_STAT) 
+    {
+        std::cout << "Do not go crazy, please! Do something fun to cheer yourself up!" << std::endl;
         return false;
+    }
     if (player->money + moneyChange < MIN_STAT) 
+    {
+        std::cout << "Ha! You're broke! Go work, lazy!" << std::endl;
         return false;
+    }
 
     player->knowledge += knowledgeChange;
     player->energy += energyChange;
@@ -265,6 +277,35 @@ bool eat(Player* player)
     case 3:
         isSuccessful = applyEffects(player, COST_ARR[3], GAIN_ARR[3],
             GAIN_ARR[3], GAIN_ARR[0]);
+        break;
+    case 11:
+    case 10:
+        return false;
+        break;
+    default:
+        break;
+    }
+    return isSuccessful;
+}
+
+bool party(Player* player)
+{
+    int partyType = choosePartyOption();
+    bool isSuccessful = false;
+
+    switch (partyType)
+    {
+    case 1:
+        isSuccessful = applyEffects(player, COST_ARR[2], GAIN_ARR[1],
+            GAIN_ARR[3], COST_ARR[0]);
+        break;
+    case 2:
+        isSuccessful = applyEffects(player, COST_ARR[3], GAIN_ARR[2],
+            GAIN_ARR[3], COST_ARR[0]);
+        break;
+    case 3:
+        isSuccessful = applyEffects(player, COST_ARR[6], GAIN_ARR[5],
+            GAIN_ARR[6], COST_ARR[4]);
         break;
     case 11:
     case 10:
@@ -408,6 +449,8 @@ void gameLoop(Player* player, int* examSchedule)
                     isSuccessful = eat(player);
                     break;
                 case 3:
+                    isSuccessful = party(player);
+                    break;
                 case 4:
                 case 5:
                     std::cout << "Action chosen. Not yet implemented" << std::endl;
@@ -423,8 +466,6 @@ void gameLoop(Player* player, int* examSchedule)
                     std::cout << "Incorrect action" << std::endl;
                     break;
             }
-            if (!isSuccessful)
-                std::cout << "Not enough resources! Choose different action!" << std::endl;
         }
         
 
