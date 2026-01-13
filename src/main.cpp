@@ -21,11 +21,10 @@ const int EASY = 1;
 const int MEDIUM = 2;
 const int HARD = 3;
 
-const int MIN_ACTION = 1, MAX_ACTION = 5, MAX_STUDY_ACTION = 4, MAX_EAT_ACTION = 3;
+const int MIN_ACTION = 1, MAX_ACTION = 5, MAX_STUDY_ACTION = 4, MAX_EAT_ACTION = 3, 
+    MAX_PARTY_ACTION = 3;
 
 const int EXIT_CODE = 11, RETURN_CODE = 10;
-
-const int MIDDLE_MULTIPLIER = 2, HIGH_MULTIPLIER = 3;
 
 const int EASY_KNOWLEDGE = 70, MID_KNOWLEDGE = 50, HARD_KNOWLEDGE = 35;
 const int EASY_STAT = 100, MID_STAT = 80, HARD_STAT = 50;
@@ -40,12 +39,8 @@ const int SESSION_LENGTH = 45;
 
 const int MIN_STAT = 0, MAX_STAT = 100;
 
-const int STUDY_MONEY_COST = -20, STUDY_ENERGY_COST = -30, STUDY_PSYCHE_COST = -30,
-    STUDY_PSYCHE_GAIN = 10, STUDY_KNOWLEDGE_GAIN = 20;
-
-const int EAT_MONEY_COST = -10, EAT_ENERGY_GAIN = 10, EAT_PSYCHE_GAIN = 10,
-    EAT_KNOWELDGE_GAIN = 0;
-
+const int GAIN_ARR[] = { 0,10,20,30,40,50 };
+const int COST_ARR[] = { 0,-10,-20,-30,-40,-50 };
 
 struct Player {
     int money;
@@ -175,6 +170,26 @@ int chooseEatingOption()
     return validateInput(MIN_ACTION, MAX_EAT_ACTION);
 }
 
+void printPartyChoices()
+{
+    std::cout << "Please Choose Where to Go Out With Friends:  " << std::endl;
+    std::cout << "[1] Studentski Stol 33" << std::endl;
+    std::cout << "[2] The Cinema" << std::endl;
+    std::cout << "[3] Club 33" << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[10] Go Back" << std::endl;
+    std::cout << "[11] Exit Game" << std::endl;
+    std::cout << "> ";
+}
+
+int choosePartyOption()
+{
+    printPartyChoices();
+    return validateInput(MIN_ACTION, MAX_PARTY_ACTION);
+}
+
 bool applyEffects(Player* player, int moneyChange, int energyChange, int psycheChange, int knowledgeChange)
 {
     if (player->knowledge + knowledgeChange < MIN_STAT) 
@@ -207,20 +222,20 @@ bool study(Player* player)
     switch (studyType)
     {
         case 1:
-            isSuccessful = applyEffects(player, 0, STUDY_ENERGY_COST, 
-                STUDY_PSYCHE_COST, STUDY_KNOWLEDGE_GAIN);
+            isSuccessful = applyEffects(player, COST_ARR[0], COST_ARR[3],
+                COST_ARR[3], GAIN_ARR[3]);
             break;
         case 2:
-            isSuccessful = applyEffects(player, 0, STUDY_ENERGY_COST / MIDDLE_MULTIPLIER,
-                STUDY_PSYCHE_COST / MIDDLE_MULTIPLIER, STUDY_KNOWLEDGE_GAIN / MIDDLE_MULTIPLIER);
+            isSuccessful = applyEffects(player, COST_ARR[0], COST_ARR[2],
+                COST_ARR[2], GAIN_ARR[2]);
             break;
         case 3:
-            isSuccessful = applyEffects(player, 0, STUDY_ENERGY_COST / MIDDLE_MULTIPLIER,
-                STUDY_PSYCHE_GAIN, STUDY_KNOWLEDGE_GAIN / MIDDLE_MULTIPLIER);
+            isSuccessful = applyEffects(player, COST_ARR[0], COST_ARR[1],
+                GAIN_ARR[1], GAIN_ARR[1]);
             break;
         case 4:
-            isSuccessful = applyEffects(player, STUDY_MONEY_COST, STUDY_ENERGY_COST / MIDDLE_MULTIPLIER,
-                STUDY_PSYCHE_GAIN, STUDY_KNOWLEDGE_GAIN);
+            isSuccessful = applyEffects(player, COST_ARR[1], COST_ARR[0],
+                COST_ARR[1], GAIN_ARR[1]);
             break;
         case 11:
         case 10:
@@ -240,20 +255,16 @@ bool eat(Player* player)
     switch (eatType)
     {
     case 1:
-        isSuccessful = applyEffects(player, EAT_MONEY_COST, EAT_ENERGY_GAIN,
-            EAT_PSYCHE_GAIN, EAT_KNOWELDGE_GAIN);
+        isSuccessful = applyEffects(player, COST_ARR[1], GAIN_ARR[1],
+            GAIN_ARR[1], GAIN_ARR[0]);
         break;
     case 2:
-        isSuccessful = applyEffects(player, EAT_MONEY_COST * MIDDLE_MULTIPLIER, EAT_ENERGY_GAIN * MIDDLE_MULTIPLIER,
-            EAT_PSYCHE_GAIN * MIDDLE_MULTIPLIER, EAT_KNOWELDGE_GAIN * MIDDLE_MULTIPLIER);
+        isSuccessful = applyEffects(player, COST_ARR[2], GAIN_ARR[2],
+            GAIN_ARR[2], GAIN_ARR[0]);
         break;
     case 3:
-        isSuccessful = applyEffects(player, EAT_MONEY_COST * HIGH_MULTIPLIER, EAT_ENERGY_GAIN / MIDDLE_MULTIPLIER,
-            STUDY_PSYCHE_GAIN, STUDY_KNOWLEDGE_GAIN / MIDDLE_MULTIPLIER);
-        break;
-    case 4:
-        isSuccessful = applyEffects(player, EAT_MONEY_COST * HIGH_MULTIPLIER, EAT_ENERGY_GAIN * HIGH_MULTIPLIER,
-            EAT_PSYCHE_GAIN * HIGH_MULTIPLIER, EAT_KNOWELDGE_GAIN * HIGH_MULTIPLIER);
+        isSuccessful = applyEffects(player, COST_ARR[3], GAIN_ARR[3],
+            GAIN_ARR[3], GAIN_ARR[0]);
         break;
     case 11:
     case 10:
