@@ -21,8 +21,8 @@ const int EASY = 1;
 const int MEDIUM = 2;
 const int HARD = 3;
 
-const int MIN_ACTION = 1, MAX_ACTION = 5, MAX_STUDY_ACTION = 4, MAX_EAT_ACTION = 3, 
-    MAX_PARTY_ACTION = 3;
+const int MIN_ACTION = 1, MAX_ACTION = 5, MAX_STUDY_ACTION = 4, MAX_EAT_ACTION = 3,
+          MAX_PARTY_ACTION = 3, MAX_REST_ACTION = 3;
 
 const int EXIT_CODE = 11, RETURN_CODE = 10;
 
@@ -131,7 +131,7 @@ int chooseAction()
 
 void printStudyChoices()
 {
-    std::cout << "Please Choose How You Plan on Studying:  " << std::endl;
+    std::cout << "Please Choose How to Rest:  " << std::endl;
     std::cout << "[1] Go to the lectures" << std::endl;
     std::cout << "[2] Study at home" << std::endl;
     std::cout << "[3] Study with friends" << std::endl;
@@ -188,6 +188,26 @@ int choosePartyOption()
 {
     printPartyChoices();
     return validateInput(MIN_ACTION, MAX_PARTY_ACTION);
+}
+
+void printRestChoices()
+{
+    std::cout << "Please Choose Where to Go Out With Friends:  " << std::endl;
+    std::cout << "[1] A 5-min nap" << std::endl;
+    std::cout << "[2] Watch reels/tiktok" << std::endl;
+    std::cout << "[3] Pass out completely" << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[10] Go Back" << std::endl;
+    std::cout << "[11] Exit Game" << std::endl;
+    std::cout << "> ";
+}
+
+int chooseRestOption()
+{
+    printRestChoices();
+    return validateInput(MIN_ACTION, MAX_REST_ACTION);
 }
 
 bool applyEffects(Player* player, int moneyChange, int energyChange, int psycheChange, int knowledgeChange)
@@ -306,6 +326,35 @@ bool party(Player* player)
     case 3:
         isSuccessful = applyEffects(player, COST_ARR[6], GAIN_ARR[5],
             GAIN_ARR[6], COST_ARR[4]);
+        break;
+    case 11:
+    case 10:
+        return false;
+        break;
+    default:
+        break;
+    }
+    return isSuccessful;
+}
+
+bool rest(Player* player)
+{
+    int restType = chooseRestOption();
+    bool isSuccessful = false;
+
+    switch (restType)
+    {
+    case 1:
+        isSuccessful = applyEffects(player, COST_ARR[0], GAIN_ARR[3],
+            GAIN_ARR[2], COST_ARR[0]);
+        break;
+    case 2:
+        isSuccessful = applyEffects(player, COST_ARR[0], GAIN_ARR[4],
+            GAIN_ARR[3], COST_ARR[1]);
+        break;
+    case 3:
+        isSuccessful = applyEffects(player, COST_ARR[0], GAIN_ARR[7],
+            GAIN_ARR[5], COST_ARR[4]);
         break;
     case 11:
     case 10:
@@ -452,6 +501,8 @@ void gameLoop(Player* player, int* examSchedule)
                     isSuccessful = party(player);
                     break;
                 case 4:
+                    isSuccessful = rest(player);
+                    break;
                 case 5:
                     std::cout << "Action chosen. Not yet implemented" << std::endl;
                     isSuccessful = true;
