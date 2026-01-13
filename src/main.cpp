@@ -22,7 +22,7 @@ const int MEDIUM = 2;
 const int HARD = 3;
 
 const int MIN_ACTION = 1, MAX_ACTION = 5, MAX_STUDY_ACTION = 4, MAX_EAT_ACTION = 3,
-          MAX_PARTY_ACTION = 3, MAX_REST_ACTION = 3;
+          MAX_PARTY_ACTION = 3, MAX_REST_ACTION = 3, MAX_WORK_ACTION = 3;
 
 const int EXIT_CODE = 11, RETURN_CODE = 10;
 
@@ -210,7 +210,28 @@ int chooseRestOption()
     return validateInput(MIN_ACTION, MAX_REST_ACTION);
 }
 
-bool applyEffects(Player* player, int moneyChange, int energyChange, int psycheChange, int knowledgeChange)
+void printWorkChoices()
+{
+    std::cout << "Please Choose Your Preffered Type of Work:  " << std::endl;
+    std::cout << "[1] Tutor your nephew" << std::endl;
+    std::cout << "[2] Do some freelance" << std::endl;
+    std::cout << "[3] McDonalds is hiring" << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[10] Go Back" << std::endl;
+    std::cout << "[11] Exit Game" << std::endl;
+    std::cout << "> ";
+}
+
+int chooseWorkOption()
+{
+    printWorkChoices();
+    return validateInput(MIN_ACTION, MAX_WORK_ACTION);
+}
+
+bool applyEffects(Player* player, const int moneyChange, const int energyChange, 
+    const int psycheChange, const int knowledgeChange)
 {
     if (player->knowledge + knowledgeChange < MIN_STAT)
     {
@@ -324,7 +345,7 @@ bool party(Player* player)
             GAIN_ARR[3], COST_ARR[0]);
         break;
     case 3:
-        isSuccessful = applyEffects(player, COST_ARR[6], GAIN_ARR[5],
+        isSuccessful = applyEffects(player, COST_ARR[6], GAIN_ARR[1],
             GAIN_ARR[6], COST_ARR[4]);
         break;
     case 11:
@@ -354,7 +375,36 @@ bool rest(Player* player)
         break;
     case 3:
         isSuccessful = applyEffects(player, COST_ARR[0], GAIN_ARR[7],
-            GAIN_ARR[5], COST_ARR[4]);
+            GAIN_ARR[3], COST_ARR[4]);
+        break;
+    case 11:
+    case 10:
+        return false;
+        break;
+    default:
+        break;
+    }
+    return isSuccessful;
+}
+
+bool work(Player* player)
+{
+    int workType = chooseWorkOption();
+    bool isSuccessful = false;
+
+    switch (workType)
+    {
+    case 1:
+        isSuccessful = applyEffects(player, GAIN_ARR[3], COST_ARR[2],
+            COST_ARR[2], GAIN_ARR[1]);
+        break;
+    case 2:
+        isSuccessful = applyEffects(player, GAIN_ARR[4], COST_ARR[4],
+            COST_ARR[4], GAIN_ARR[1]);
+        break;
+    case 3:
+        isSuccessful = applyEffects(player, GAIN_ARR[6], COST_ARR[6],
+            COST_ARR[5], GAIN_ARR[1]);
         break;
     case 11:
     case 10:
@@ -401,7 +451,7 @@ void createPlayer(Player* player, int diff)
     }
 }
 
-int randNumInRange(int min, int max)
+int randNumInRange(const int min, const int max)
 {
     return min + rand() % (max - min + 1);
 }
@@ -504,8 +554,7 @@ void gameLoop(Player* player, int* examSchedule)
                     isSuccessful = rest(player);
                     break;
                 case 5:
-                    std::cout << "Action chosen. Not yet implemented" << std::endl;
-                    isSuccessful = true;
+                    isSuccessful = work(player);
                     break;
                 case 10:
                 case 11:
