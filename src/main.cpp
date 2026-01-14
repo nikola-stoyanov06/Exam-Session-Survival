@@ -41,6 +41,7 @@ const int MIN_STAT = 0, MAX_STAT = 100;
 
 const int GAIN_ARR[] = { 0,5,10,20,25,30,40,50 };
 const int COST_ARR[] = { 0,-5,-10,-20,-25,-30,-40,-50 };
+const int EXAM_ENERGY_COST = 10, EXAM_PSYCHE_PENALTY = 20;
 
 struct Player {
     int money;
@@ -131,7 +132,7 @@ int chooseAction()
 
 void printStudyChoices()
 {
-    std::cout << "Please Choose How to Rest:  " << std::endl;
+    std::cout << "Please Choose Your Way to Study:  " << std::endl;
     std::cout << "[1] Go to the lectures" << std::endl;
     std::cout << "[2] Study at home" << std::endl;
     std::cout << "[3] Study with friends" << std::endl;
@@ -192,7 +193,7 @@ int choosePartyOption()
 
 void printRestChoices()
 {
-    std::cout << "Please Choose Where to Go Out With Friends:  " << std::endl;
+    std::cout << "Please Choose How to Sleep  " << std::endl;
     std::cout << "[1] A 5-min nap" << std::endl;
     std::cout << "[2] Watch reels/tiktok" << std::endl;
     std::cout << "[3] Pass out completely" << std::endl;
@@ -233,27 +234,6 @@ int chooseWorkOption()
 bool applyEffects(Player* player, const int moneyChange, const int energyChange, 
     const int psycheChange, const int knowledgeChange)
 {
-    if (player->knowledge + knowledgeChange < MIN_STAT)
-    {
-        std::cout << "You are pretty dumb, go study instead!" << std::endl;
-        return false;
-    }
-    if (player->energy + energyChange < MIN_STAT) 
-    {
-        std::cout << "You are about to pass out, you need rest!" << std::endl;
-        return false;
-    }
-    if (player->psyche + psycheChange < MIN_STAT) 
-    {
-        std::cout << "Do not go crazy, please! Do something fun to cheer yourself up!" << std::endl;
-        return false;
-    }
-    if (player->money + moneyChange < MIN_STAT) 
-    {
-        std::cout << "Ha! You're broke! Go work, lazy!" << std::endl;
-        return false;
-    }
-
     player->knowledge += knowledgeChange;
     player->energy += energyChange;
     player->psyche += psycheChange;
@@ -264,6 +244,8 @@ bool applyEffects(Player* player, const int moneyChange, const int energyChange,
     player->psyche = keepInRange(MIN_STAT, MAX_STAT, player->psyche);
     player->money = keepInRange(MIN_STAT, MAX_STAT, player->money);
 
+    if (!player->energy)
+        player->skipNextDay = true;
     return true;
 }
 
@@ -528,14 +510,113 @@ void printPlayerStats(const Player* player)
     std::cout << std::endl;
 }
 
+int getExamIndex(const int* arr, int currentDay)
+{
+    for (size_t i = 0; i < EXAM_COUNT; i++)
+    {
+        if (*arr == currentDay)
+            return i;
+
+        arr++;
+    }
+
+    return -1;
+}
+
+bool takeExam(Player* player, int index)
+{
+    if (player->energy <= EXAM_ENERGY_COST)
+        return false;
+    int luckFactor = randNumInRange(0, 100);
+    int difficultyFactor = (index - 1) * 5;
+    int successRate = player->knowledge * 0.75 + player->energy * 0.1 + player->psyche * 0.1
+        + luckFactor * 0.2 - difficultyFactor;
+
+    return successRate >= 75;
+}
+
+void applyExamChanges(Player* player, bool result)
+{
+    player->energy -= EXAM_ENERGY_COST;
+    player->energy = keepInRange(MIN_STAT, MAX_STAT, player->energy);
+
+    if (!player->energy)
+        player->skipNextDay = true;
+}
+
+bool isStillPlaying(Player* player)
+{
+    if (player->energy <= MIN_STAT)
+    {
+        player->skipNextDay = true;
+    }
+    if (player->money <= MIN_STAT)
+    {
+        std::cout << "You've gone bankrupt!";
+        return false;
+    }
+    if (player->psyche <= MIN_STAT)
+    {
+        std::cout << "You have gone crazy and have left FMI.";
+        return false;
+    }
+    return true;
+}
+void skipDay(Player* player)
+{
+    std::cout << "You have tried too hard. You'll sleep it off tomorrow!" << std::endl;
+    std::cout << std::endl;
+    player->skipNextDay = false;
+    player->currentDay++;
+    player->energy += 5;
+    player->energy = keepInRange(MIN_STAT, MAX_STAT, player->energy);
+}
+
 void gameLoop(Player* player, int* examSchedule)
 {
     bool isRunning = true;
     while (isRunning)
     {
         printPlayerStats(player);
+
+        bool isPlaying = isStillPlaying(player);
+
+        if (!isPlaying)
+        {
+            isRunning = false;
+            continue;
+        }
+
+        if (player->skipNextDay)
+        {
+            skipDay(player);
+            continue;
+        }
         
         bool isSuccessful = false;
+
+        int index = getExamIndex(examSchedule, player->currentDay);
+
+        if (index != -1)
+        {
+            std::cout << "Exam day!" << std::endl;
+            std::cout << "Good luck with your result!" << std::endl;
+            std::cout << std::endl;
+           
+            bool isTaken = takeExam(player, index);
+            isSuccessful = true;
+            if (!isTaken)
+            {
+                player->psyche -= EXAM_PSYCHE_PENALTY;
+                player->psyche = keepInRange(MIN_STAT, MAX_STAT, player->energy);
+            }
+            else
+            {
+                player->passedExams++;
+            }
+
+            applyExamChanges(player, isTaken);
+        }
         while (!isSuccessful)
         {
             int action = chooseAction();
