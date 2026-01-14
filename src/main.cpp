@@ -16,15 +16,18 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
+#include <cstring>
+#include "main.h"
 
-const int EASY = 1;
-const int MEDIUM = 2;
-const int HARD = 3;
 
-const int MIN_ACTION = 1, MAX_ACTION = 5, MAX_STUDY_ACTION = 4, MAX_EAT_ACTION = 3,
+const int EASY = 1, MEDIUM = 2, HARD = 3;
+
+const int MIN_ACTION = 1, MAX_ACTION = 5, MAX_MENU_CHOICE = 2, MAX_STUDY_ACTION = 4, MAX_EAT_ACTION = 3,
           MAX_PARTY_ACTION = 3, MAX_REST_ACTION = 3, MAX_WORK_ACTION = 3;
 
-const int EXIT_CODE = 11, RETURN_CODE = 10;
+const int EXIT_CODE = 11, RETURN_CODE = 10, 
+    SAVE_CODE = 9, NEW_GAME_CODE = 1, LOAD_GAME_CODE = 2;;
 
 const int EASY_KNOWLEDGE = 70, MID_KNOWLEDGE = 50, HARD_KNOWLEDGE = 35;
 const int EASY_STAT = 100, MID_STAT = 80, HARD_STAT = 50;
@@ -34,6 +37,7 @@ const int EXAM_COUNT = 5;
 const int SCHEDULE[EXAM_COUNT] = {8, 17, 26, 0, 45};
 
 const int LINE_WIDTH = 35;
+const int MAX_USERNAME_LENGTH = 32;
 
 const int SESSION_LENGTH = 45;
 
@@ -69,7 +73,7 @@ int validateInput(int min, int max)
     while (true)
     {
         std::cin >> input;
-        if (input == EXIT_CODE)
+        if (input == SAVE_CODE)
         {
             return input;
         }
@@ -88,6 +92,71 @@ int validateInput(int min, int max)
     }
 }
 
+int validateMenuChoice()
+{
+    int input;
+    while (true)
+    {
+        std::cin >> input;
+        if (input == EXIT_CODE)
+        {
+            return input;
+        }
+
+        if (input < MIN_ACTION || input > MAX_MENU_CHOICE || std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(100, '\n');
+            std::cout << "Invalid input! Try again: > ";
+        }
+        else
+            return input;
+    }
+}
+
+int validateDifficultyChoice()
+{
+    int input;
+    while (true)
+    {
+        std::cin >> input;
+        if (input == RETURN_CODE)
+        {
+            return input;
+        }
+
+        if (input < EASY || input > HARD || std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(100, '\n');
+            std::cout << "Invalid input! Try again: > ";
+        }
+        else
+            return input;
+    }
+}
+
+void printMainMenu()
+{
+    std::cout << "===================================" << std::endl;
+    std::cout << "| STUDENT QUEST: SESSION SURVIVAL |" << std::endl;
+    std::cout << "===================================" << std::endl;
+    std::cout << std::endl;
+    std::cout << "[1] New Game" << std::endl;
+    std::cout << "[2] Load Game" << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[] " << std::endl;
+    std::cout << "[11] Exit" << std::endl;
+    std::cout << "> ";
+}
+
+int getMainMenuChoice()
+{
+    printMainMenu();
+    return validateMenuChoice();
+}
+
 void printDifficultyChoices()
 {
     std::cout << "Choose difficulty: " << std::endl;
@@ -98,14 +167,13 @@ void printDifficultyChoices()
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
     std::cout << "[10] Go Back" << std::endl;
-    std::cout << "[11] Exit Game" << std::endl;
     std::cout << "> ";
 }
 
 int chooseDifficulty()
 {
     printDifficultyChoices();
-    return validateInput(EASY, HARD);
+    return validateDifficultyChoice();
 }
 
 void printActionChoices()
@@ -119,8 +187,8 @@ void printActionChoices()
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
+    std::cout << "[9] Save Game" << std::endl;
     std::cout << "[10] Go Back" << std::endl;
-    std::cout << "[11] Exit Game" << std::endl;
     std::cout << "> ";
 }
 
@@ -140,8 +208,8 @@ void printStudyChoices()
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
+    std::cout << "[9] Save Game" << std::endl;
     std::cout << "[10] Go Back" << std::endl;
-    std::cout << "[11] Exit Game" << std::endl;
     std::cout << "> ";
 }
 
@@ -160,8 +228,8 @@ void printEatingChoices()
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
+    std::cout << "[9] Save Game" << std::endl;
     std::cout << "[10] Go Back" << std::endl;
-    std::cout << "[11] Exit Game" << std::endl;
     std::cout << "> ";
 }
 
@@ -180,8 +248,8 @@ void printPartyChoices()
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
+    std::cout << "[9] Save Game" << std::endl;
     std::cout << "[10] Go Back" << std::endl;
-    std::cout << "[11] Exit Game" << std::endl;
     std::cout << "> ";
 }
 
@@ -200,8 +268,8 @@ void printRestChoices()
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
+    std::cout << "[9] Save Game" << std::endl;
     std::cout << "[10] Go Back" << std::endl;
-    std::cout << "[11] Exit Game" << std::endl;
     std::cout << "> ";
 }
 
@@ -220,8 +288,8 @@ void printWorkChoices()
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
+    std::cout << "[9] Save Game" << std::endl;
     std::cout << "[10] Go Back" << std::endl;
-    std::cout << "[11] Exit Game" << std::endl;
     std::cout << "> ";
 }
 
@@ -258,19 +326,19 @@ bool study(Player* player)
     {
         case 1:
             isSuccessful = applyEffects(player, COST_ARR[0], COST_ARR[3],
-                COST_ARR[3], GAIN_ARR[3]);
+                COST_ARR[3], GAIN_ARR[2]);
             break;
         case 2:
             isSuccessful = applyEffects(player, COST_ARR[0], COST_ARR[2],
-                COST_ARR[2], GAIN_ARR[2]);
+                COST_ARR[4], GAIN_ARR[3]);
             break;
         case 3:
-            isSuccessful = applyEffects(player, COST_ARR[0], COST_ARR[1],
-                GAIN_ARR[1], GAIN_ARR[1]);
+            isSuccessful = applyEffects(player, COST_ARR[0], COST_ARR[2],
+                GAIN_ARR[2], GAIN_ARR[1]);
             break;
         case 4:
-            isSuccessful = applyEffects(player, COST_ARR[1], COST_ARR[0],
-                COST_ARR[1], GAIN_ARR[1]);
+            isSuccessful = applyEffects(player, COST_ARR[2], COST_ARR[0],
+                COST_ARR[1], GAIN_ARR[2]);
             break;
         case 11:
         case 10:
@@ -324,10 +392,10 @@ bool party(Player* player)
         break;
     case 2:
         isSuccessful = applyEffects(player, COST_ARR[3], GAIN_ARR[2],
-            GAIN_ARR[3], COST_ARR[0]);
+            GAIN_ARR[4], COST_ARR[1]);
         break;
     case 3:
-        isSuccessful = applyEffects(player, COST_ARR[6], GAIN_ARR[1],
+        isSuccessful = applyEffects(player, COST_ARR[6], GAIN_ARR[2],
             GAIN_ARR[6], COST_ARR[4]);
         break;
     case 11:
@@ -659,20 +727,58 @@ void gameLoop(Player* player, int* examSchedule)
     }
 }
 
-int main()
+void inputUserName(char name[])
 {
-    srand(time(nullptr));
+    std::cin.ignore(100, '\n');
+    std::cout << "Enter username: ";
+    std::cin >> name;
+}
 
+bool loadGame()
+{
+    return true;
+}
+
+int main()
+{ 
     Player player;
     int examSchedule[EXAM_COUNT];
+    char username[MAX_USERNAME_LENGTH];
+    srand(time(nullptr));
 
-    int diff = chooseDifficulty();
-    if (diff == EXIT_CODE || diff == RETURN_CODE)
-        return 0;
+    while (true)
+    {
+        int mainMenuChoice = getMainMenuChoice();
 
-    createPlayer(&player, diff);
+        if (mainMenuChoice == EXIT_CODE)
+            return 0;
 
-    generateExamSchedule(examSchedule, EXAM_COUNT);
+        if (mainMenuChoice == NEW_GAME_CODE)
+        {
+            int diff = chooseDifficulty();
+            if (diff == RETURN_CODE)
+                continue;
 
-    gameLoop(&player, examSchedule);
+            createPlayer(&player, diff);
+            generateExamSchedule(examSchedule, EXAM_COUNT);
+            inputUserName(username);
+            gameLoop(&player, examSchedule);
+            break;
+        }
+        else if (mainMenuChoice == LOAD_GAME_CODE)
+        {
+            inputUserName(username);
+            
+            if (loadGame())
+            {
+                gameLoop(&player, examSchedule);
+                break;
+            }
+            else
+            {
+                std::cout << "Error loading user!" << std::endl;
+                continue;
+            }
+        }
+    }
 }
