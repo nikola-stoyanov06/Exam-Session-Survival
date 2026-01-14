@@ -18,7 +18,6 @@
 #include <ctime>
 #include <fstream>
 #include <cstring>
-#include "main.h"
 
 
 const int EASY = 1, MEDIUM = 2, HARD = 3;
@@ -37,7 +36,7 @@ const int EXAM_COUNT = 5;
 const int SCHEDULE[EXAM_COUNT] = {8, 17, 26, 0, 45};
 
 const int LINE_WIDTH = 35;
-const int MAX_USERNAME_LENGTH = 32;
+const int MAX_USERNAME_LENGTH = 32, MAX_FILE_LENGTH = 64;
 
 const int SESSION_LENGTH = 45;
 
@@ -46,6 +45,47 @@ const int MIN_STAT = 0, MAX_STAT = 100;
 const int GAIN_ARR[] = { 0,5,10,20,25,30,40,50 };
 const int COST_ARR[] = { 0,-5,-10,-20,-25,-30,-40,-50 };
 const int EXAM_ENERGY_COST = 10, EXAM_PSYCHE_PENALTY = 20;
+
+int myStrlen(const char* str)
+{
+    if (!str)
+        return 0;
+
+    unsigned result = 0;
+
+    while (*str)
+    {
+        result++;
+        str++;
+    }
+
+    return result;
+}
+
+void myStrCopy(char* dest, const char* str)
+{
+    if (!str)
+        return;
+    
+    while (*str)
+    {
+        *dest = *str;
+        dest++;
+        str++;
+    }
+
+    *dest = '\0';
+}
+
+void myStrCat(char* dest, const char* str)
+{
+    if (!dest || !str)
+        return;
+
+    int firstLen = myStrlen(dest);
+    dest += firstLen;
+    myStrCopy(dest, str);
+}
 
 struct Player {
     int money;
@@ -640,8 +680,80 @@ void skipDay(Player* player)
     player->energy = keepInRange(MIN_STAT, MAX_STAT, player->energy);
 }
 
-void gameLoop(Player* player, int* examSchedule)
+bool saveGame(Player* player, const int examSchedule[], const char* username, const int diff)
 {
+    if (!player || !username)
+        return false;
+
+    char fileName[MAX_FILE_LENGTH];
+    myStrCopy(fileName, "saves/");
+    myStrCat(fileName, username);
+    myStrCat(fileName, ".txt");
+
+    std::ofstream file(fileName);
+    if (!file.is_open())
+    {
+        std::cout << "Failed to save game." << std::endl;
+        return false;
+    }
+
+    file << username << std::endl;
+    file << diff << std::endl;
+    file << player->currentDay << std::endl;
+    file << player->passedExams << std::endl;
+    file << player->money << std::endl;
+    file << player->energy << std::endl;
+    file << player->psyche << std::endl;
+    file << player->knowledge << std::endl;
+
+    for (int i = 0; i < EXAM_COUNT; i++)
+        file << examSchedule[i] << " ";
+
+    file.close();
+    return true;
+}
+
+bool loadGame(Player* player, int examSchedule[], char* username, int& diff)
+{
+    if (!player || !username)
+        return false;
+
+
+    char fileName[MAX_FILE_LENGTH];
+    myStrCopy(fileName, "saves/");
+    myStrCat(fileName, username);
+    myStrCat(fileName, ".txt");
+
+    std::ifstream file(fileName);
+    if (!file.is_open())
+    {
+        std::cout << "Save file not found." << std::endl;
+        return false;
+    }
+
+    char loadedName[MAX_USERNAME_LENGTH];
+    file.getline(loadedName, MAX_USERNAME_LENGTH);
+
+    file >> diff;
+    file >> player->currentDay;
+    file >> player->passedExams;
+    file >> player->money;
+    file >> player->energy;
+    file >> player->psyche;
+    file >> player->knowledge;
+    player->skipNextDay = false;
+
+    for (int i = 0; i < EXAM_COUNT; i++)
+        file >> examSchedule[i];
+
+    file.close();
+}
+
+void gameLoop(Player* player, const int* examSchedule, const char* username, int diff)
+{
+    if (!examSchedule || !username)
+        return;
+
     bool isRunning = true;
     while (isRunning)
     {
@@ -705,6 +817,12 @@ void gameLoop(Player* player, int* examSchedule)
                 case 5:
                     isSuccessful = work(player);
                     break;
+                case 9:
+                    if (saveGame(player, examSchedule, username, diff))
+                        std::cout << "Successfully saved to " << username << std::endl;
+                    printPlayerStats(player);
+                    isSuccessful = false;
+                    break;
                 case 10:
                 case 11:
                     std::cout << "Exiting..." << std::endl;
@@ -734,11 +852,6 @@ void inputUserName(char name[])
     std::cin >> name;
 }
 
-bool loadGame()
-{
-    return true;
-}
-
 int main()
 { 
     Player player;
@@ -762,16 +875,18 @@ int main()
             createPlayer(&player, diff);
             generateExamSchedule(examSchedule, EXAM_COUNT);
             inputUserName(username);
-            gameLoop(&player, examSchedule);
+            if (!saveGame(&player, examSchedule, username, diff))
+                continue;
+            gameLoop(&player, examSchedule, username, diff);
             break;
         }
         else if (mainMenuChoice == LOAD_GAME_CODE)
         {
             inputUserName(username);
-            
-            if (loadGame())
+            int diff;
+            if (loadGame(&player, examSchedule, username, diff))
             {
-                gameLoop(&player, examSchedule);
+                gameLoop(&player, examSchedule, username, diff);
                 break;
             }
             else
