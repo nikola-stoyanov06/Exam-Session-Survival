@@ -14,6 +14,7 @@
 
 #ifndef ACTIONFUNCTIONS_H
 #define ACTIONFUNCTIONS_H
+#include "constants.h"
 
 int getMainMenuChoice();
 int chooseDifficulty();
@@ -23,6 +24,7 @@ int chooseEatingOption();
 int choosePartyOption();
 int chooseRestOption();
 int chooseWorkOption();
+int chooseReturnOption();
 
 bool study(Player* player);
 bool eat(Player* player);

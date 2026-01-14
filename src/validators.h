@@ -18,5 +18,6 @@
 int validateInput(int min, int max);
 int validateMenuChoice();
 int validateDifficultyChoice();
+int validateReturnChoice();
 
 #endif

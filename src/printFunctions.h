@@ -27,7 +27,9 @@ void printEatingChoices();
 void printPartyChoices();
 void printRestChoices();
 void printWorkChoices();
+void printReturnChoices();
 void printStatLine(const char* label, int value);
 void printPlayerStats(const Player* player);
+
 
 #endif

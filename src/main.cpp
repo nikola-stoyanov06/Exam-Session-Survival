@@ -280,11 +280,25 @@ void gameLoop(Player* player, const int* examSchedule, const char* username, int
                     isSuccessful = false;
                     break;
                 case 10:
-                case 11:
-                    std::cout << "Exiting..." << std::endl;
+                {
+                    int choice = chooseReturnOption();
+                    if (choice == RETURN_CODE)
+                    {
+                        isSuccessful = false;
+                        break;
+                    }
+                    if (choice == MIN_ACTION)
+                    {
+                        if (saveGame(player, examSchedule, username, diff))
+                        {
+                            std::cout << "Successfully saved to " << username << std::endl;
+                            std::cout << std::endl;
+                        }
+                    }
                     isSuccessful = true;
                     isRunning = false;
                     break;
+                }
                 default:
                     std::cout << "Incorrect action" << std::endl;
                     break;
@@ -327,7 +341,6 @@ int main()
             if (!saveGame(&player, examSchedule, username, diff))
                 continue;
             gameLoop(&player, examSchedule, username, diff);
-            break;
         }
         else if (mainMenuChoice == LOAD_GAME_CODE)
         {
@@ -336,7 +349,6 @@ int main()
             if (loadGame(&player, examSchedule, username, diff))
             {
                 gameLoop(&player, examSchedule, username, diff);
-                break;
             }
             else
             {

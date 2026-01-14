@@ -66,6 +66,11 @@ int chooseWorkOption()
     return validateInput(MIN_ACTION, MAX_WORK_ACTION);
 }
 
+int chooseReturnOption()
+{
+    printReturnChoices();
+    return validateReturnChoice();
+}
 
 bool study(Player* player)
 {

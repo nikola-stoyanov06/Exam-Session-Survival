@@ -85,3 +85,25 @@ int validateDifficultyChoice()
             return input;
     }
 }
+
+int validateReturnChoice()
+{
+    int input;
+    while (true)
+    {
+        std::cin >> input;
+        if (input == RETURN_CODE)
+        {
+            return input;
+        }
+
+        if (input < MIN_ACTION || input > MAX_RETURN_CHOICE || std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(100, '\n');
+            std::cout << "Invalid input! Try again: > ";
+        }
+        else
+            return input;
+    }
+}

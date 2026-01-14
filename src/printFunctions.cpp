@@ -132,6 +132,15 @@ void printWorkChoices()
     std::cout << "> ";
 }
 
+void printReturnChoices()
+{
+    std::cout << "Leaving game. Do you wish to save progress?" << std::endl;
+    std::cout << "[1] Yes" << std::endl;
+    std::cout << "[2] No" << std::endl;
+    std::cout << "[10] Go Back" << std::endl;
+    std::cout << "> ";
+}
+
 void printStatLine(const char* label, int value)
 {
     if (!label)
