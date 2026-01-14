@@ -4,6 +4,7 @@
 *.vcxproj.filters
 *.vcxproj.user
 *.sln
+saves/*.txt
 
 # Build folders
 Debug/
