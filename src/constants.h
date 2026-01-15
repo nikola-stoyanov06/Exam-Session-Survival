@@ -20,6 +20,8 @@ const int EASY = 1, MEDIUM = 2, HARD = 3;
 const int MIN_ACTION = 1, MAX_ACTION = 5, MAX_MENU_CHOICE = 2, MAX_STUDY_ACTION = 4, MAX_EAT_ACTION = 3,
 MAX_PARTY_ACTION = 3, MAX_REST_ACTION = 3, MAX_WORK_ACTION = 3, MAX_RETURN_CHOICE = 2;
 
+const int RANDOM_EVENT_COUNT = 16;
+
 const int EXIT_CODE = 11, RETURN_CODE = 10,
 SAVE_CODE = 9, NEW_GAME_CODE = 1, LOAD_GAME_CODE = 2;;
 
@@ -49,6 +51,17 @@ struct Player {
     int passedExams;
     int currentDay;
     bool skipNextDay;
+};
+
+struct RandomEvent
+{
+    int actionIndex;
+    int subActionIndex;
+    int moneyChange;
+    int energyChange;
+    int psycheChange;
+    int knowledgeChange;
+    const char* message;
 };
 
 #endif
