@@ -64,4 +64,6 @@ struct RandomEvent
     const char* message;
 };
 
+const RandomEvent NULL_EVENT = { 0,0,0,0,0,0,"" };
+
 #endif

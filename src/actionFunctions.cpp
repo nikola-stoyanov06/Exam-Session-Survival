@@ -16,6 +16,7 @@
 #include "printFunctions.h"
 #include "validators.h"
 #include "helpers.h"
+#include "fileHandlers.h"
 
 
 int getMainMenuChoice()
@@ -27,13 +28,13 @@ int getMainMenuChoice()
 int chooseDifficulty()
 {
     printDifficultyChoices();
-    return validateDifficultyChoice();
+    return validateInput(EASY, HARD);
 }
 
 int chooseAction()
 {
     printActionChoices();
-    return validateInput(MIN_ACTION, MAX_ACTION);
+    return validateActionChoice();
 }
 
 int chooseStudyOption()
@@ -72,9 +73,9 @@ int chooseReturnOption()
     return validateReturnChoice();
 }
 
-bool study(Player* player)
+bool study(Player* player, int& studyType)
 {
-    int studyType = chooseStudyOption();
+    studyType = chooseStudyOption();
     bool isSuccessful = false;
 
     switch (studyType)
@@ -95,7 +96,6 @@ bool study(Player* player)
         isSuccessful = applyEffects(player, COST_ARR[2], COST_ARR[0],
             COST_ARR[1], GAIN_ARR[2]);
         break;
-    case 11:
     case 10:
         return false;
         break;
@@ -105,9 +105,9 @@ bool study(Player* player)
     return isSuccessful;
 }
 
-bool eat(Player* player)
+bool eat(Player* player, int& eatType)
 {
-    int eatType = chooseEatingOption();
+    eatType = chooseEatingOption();
     bool isSuccessful = false;
 
     switch (eatType)
@@ -134,9 +134,9 @@ bool eat(Player* player)
     return isSuccessful;
 }
 
-bool party(Player* player)
+bool party(Player* player, int& partyType)
 {
-    int partyType = choosePartyOption();
+    partyType = choosePartyOption();
     bool isSuccessful = false;
 
     switch (partyType)
@@ -163,9 +163,9 @@ bool party(Player* player)
     return isSuccessful;
 }
 
-bool rest(Player* player)
+bool rest(Player* player, int& restType)
 {
-    int restType = chooseRestOption();
+    restType = chooseRestOption();
     bool isSuccessful = false;
 
     switch (restType)
@@ -192,9 +192,9 @@ bool rest(Player* player)
     return isSuccessful;
 }
 
-bool work(Player* player)
+bool work(Player* player, int& workType)
 {
-    int workType = chooseWorkOption();
+    workType = chooseWorkOption();
     bool isSuccessful = false;
 
     switch (workType)

@@ -23,10 +23,6 @@ int validateInput(int min, int max)
     while (true)
     {
         std::cin >> input;
-        if (input == SAVE_CODE)
-        {
-            return input;
-        }
         if (input == RETURN_CODE)
         {
             return input;
@@ -64,28 +60,6 @@ int validateMenuChoice()
     }
 }
 
-int validateDifficultyChoice()
-{
-    int input;
-    while (true)
-    {
-        std::cin >> input;
-        if (input == RETURN_CODE)
-        {
-            return input;
-        }
-
-        if (input < EASY || input > HARD || std::cin.fail())
-        {
-            std::cin.clear();
-            std::cin.ignore(100, '\n');
-            std::cout << "Invalid input! Try again: > ";
-        }
-        else
-            return input;
-    }
-}
-
 int validateReturnChoice()
 {
     int input;
@@ -98,6 +72,31 @@ int validateReturnChoice()
         }
 
         if (input < MIN_ACTION || input > MAX_RETURN_CHOICE || std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(100, '\n');
+            std::cout << "Invalid input! Try again: > ";
+        }
+        else
+            return input;
+    }
+}
+
+int validateActionChoice()
+{
+    int input;
+    while (true)
+    {
+        std::cin >> input;
+        if (input == RETURN_CODE)
+        {
+            return input;
+        }
+        if (input == SAVE_CODE)
+        {
+            return input;
+        }
+        if (input < MIN_ACTION || input > MAX_ACTION || std::cin.fail())
         {
             std::cin.clear();
             std::cin.ignore(100, '\n');

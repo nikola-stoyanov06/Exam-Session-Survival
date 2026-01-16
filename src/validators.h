@@ -17,7 +17,7 @@
 
 int validateInput(int min, int max);
 int validateMenuChoice();
-int validateDifficultyChoice();
 int validateReturnChoice();
+int validateActionChoice();
 
 #endif

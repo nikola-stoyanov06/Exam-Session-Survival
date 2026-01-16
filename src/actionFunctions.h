@@ -26,11 +26,11 @@ int chooseRestOption();
 int chooseWorkOption();
 int chooseReturnOption();
 
-bool study(Player* player);
-bool eat(Player* player);
-bool party(Player* player);
-bool rest(Player* player);
-bool work(Player* player);
+bool study(Player* player, int& studyType);
+bool eat(Player* player, int& eatType);
+bool party(Player* player, int& partyType);
+bool rest(Player* player, int& restType);
+bool work(Player* player, int& workType);
 
 bool applyEffects(Player* player, const int moneyChange, const int energyChange,
 	const int psycheChange, const int knowledgeChange);

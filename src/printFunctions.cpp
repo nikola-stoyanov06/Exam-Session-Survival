@@ -20,7 +20,7 @@
 void printMainMenu()
 {
     std::cout << "===================================" << std::endl;
-    std::cout << "| STUDENT QUEST: SESSION SURVIVAL |" << std::endl;
+    std::cout << "|      EXAM SESSION SURVIVAL      |" << std::endl;
     std::cout << "===================================" << std::endl;
     std::cout << std::endl;
     std::cout << "[1] New Game" << std::endl;
@@ -71,7 +71,6 @@ void printStudyChoices()
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
-    std::cout << "[9] Save Game" << std::endl;
     std::cout << "[10] Go Back" << std::endl;
     std::cout << "> ";
 }
@@ -85,7 +84,6 @@ void printEatingChoices()
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
-    std::cout << "[9] Save Game" << std::endl;
     std::cout << "[10] Go Back" << std::endl;
     std::cout << "> ";
 }
@@ -99,7 +97,6 @@ void printPartyChoices()
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
-    std::cout << "[9] Save Game" << std::endl;
     std::cout << "[10] Go Back" << std::endl;
     std::cout << "> ";
 }
@@ -113,7 +110,6 @@ void printRestChoices()
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
-    std::cout << "[9] Save Game" << std::endl;
     std::cout << "[10] Go Back" << std::endl;
     std::cout << "> ";
 }
@@ -127,7 +123,6 @@ void printWorkChoices()
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
     std::cout << "[] " << std::endl;
-    std::cout << "[9] Save Game" << std::endl;
     std::cout << "[10] Go Back" << std::endl;
     std::cout << "> ";
 }

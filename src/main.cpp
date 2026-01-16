@@ -23,6 +23,8 @@
 #include "helpers.h"
 #include "actionFunctions.h"
 #include "validators.h"
+#include "fileHandlers.h"
+#include "eventConstants.h"
 
 void createPlayer(Player* player, int diff)
 {
@@ -115,12 +117,12 @@ bool isStillPlaying(Player* player)
     }
     if (player->money <= MIN_STAT)
     {
-        std::cout << "You've gone bankrupt!";
+        std::cout << "You've gone bankrupt!" << std::endl;
         return false;
     }
     if (player->psyche <= MIN_STAT)
     {
-        std::cout << "You have gone crazy and have left FMI.";
+        std::cout << "You have gone crazy and have left FMI." << std::endl;
         return false;
     }
     return true;
@@ -135,74 +137,36 @@ void skipDay(Player* player)
     player->energy = keepInRange(MIN_STAT, MAX_STAT, player->energy);
 }
 
-bool saveGame(Player* player, const int examSchedule[], const char* username, const int diff)
+bool isEvent()
 {
-    if (!player || !username)
-        return false;
-
-    char fileName[MAX_FILE_LENGTH];
-    myStrCopy(fileName, "saves/");
-    myStrCat(fileName, username);
-    myStrCat(fileName, ".txt");
-
-    std::ofstream file(fileName);
-    if (!file.is_open())
-    {
-        std::cout << "Failed to save game." << std::endl;
-        return false;
-    }
-
-    file << username << std::endl;
-    file << diff << std::endl;
-    file << player->currentDay << std::endl;
-    file << player->passedExams << std::endl;
-    file << player->money << std::endl;
-    file << player->energy << std::endl;
-    file << player->psyche << std::endl;
-    file << player->knowledge << std::endl;
-
-    for (int i = 0; i < EXAM_COUNT; i++)
-        file << examSchedule[i] << " ";
-
-    file.close();
-    return true;
+    int random = randNumInRange(0, 99);
+    return random < 10;
 }
 
-bool loadGame(Player* player, int examSchedule[], char* username, int& diff)
+const RandomEvent findEvent(int action, int subAction)
 {
-    if (!player || !username)
-        return false;
-
-
-    char fileName[MAX_FILE_LENGTH];
-    myStrCopy(fileName, "saves/");
-    myStrCat(fileName, username);
-    myStrCat(fileName, ".txt");
-
-    std::ifstream file(fileName);
-    if (!file.is_open())
+    int isGood = randNumInRange(0, 1);
+    for (size_t i = 0; i < RANDOM_EVENT_COUNT; i++)
     {
-        std::cout << "Save file not found." << std::endl;
-        return false;
+        if (GOOD_EVENTS[i].actionIndex == action 
+            && GOOD_EVENTS[i].subActionIndex == subAction 
+            && isGood)
+            return GOOD_EVENTS[i];
+        else if (BAD_EVENTS[i].actionIndex == action
+            && BAD_EVENTS[i].subActionIndex == subAction
+            && !isGood)
+            return BAD_EVENTS[i];
     }
+    return NULL_EVENT;
+}
 
-    char loadedName[MAX_USERNAME_LENGTH];
-    file.getline(loadedName, MAX_USERNAME_LENGTH);
-
-    file >> diff;
-    file >> player->currentDay;
-    file >> player->passedExams;
-    file >> player->money;
-    file >> player->energy;
-    file >> player->psyche;
-    file >> player->knowledge;
-    player->skipNextDay = false;
-
-    for (int i = 0; i < EXAM_COUNT; i++)
-        file >> examSchedule[i];
-
-    return true;
-    file.close();
+void applyEvent(Player* player, int action, int subAction)
+{
+    RandomEvent event = findEvent(action, subAction);
+    applyEffects(player, event.moneyChange, event.energyChange,
+        event.psycheChange, event.knowledgeChange);
+    std::cout << event.message << std::endl;
+    std::cout << std::endl;
 }
 
 void gameLoop(Player* player, const int* examSchedule, const char* username, int diff)
@@ -258,24 +222,38 @@ void gameLoop(Player* player, const int* examSchedule, const char* username, int
             int action = chooseAction();
             switch (action)
             {
+                int choice;
                 case 1:
-                    isSuccessful = study(player);
+                    isSuccessful = study(player, choice);
+                    if (isEvent())
+                        applyEvent(player, action, choice);
                     break;
                 case 2:
-                    isSuccessful = eat(player);
+                    isSuccessful = eat(player, choice);
+                    if (isEvent())
+                        applyEvent(player, action, choice);
                     break;
                 case 3:
-                    isSuccessful = party(player);
+                    isSuccessful = party(player, choice);
+                    if (isEvent())
+                        applyEvent(player, action, choice);
                     break;
                 case 4:
-                    isSuccessful = rest(player);
+                    isSuccessful = rest(player, choice);
+                    if (isEvent())
+                        applyEvent(player, action, choice);
                     break;
                 case 5:
-                    isSuccessful = work(player);
+                    isSuccessful = work(player, choice);
+                    if (isEvent())
+                        applyEvent(player, action, choice);
                     break;
                 case 9:
                     if (saveGame(player, examSchedule, username, diff))
+                    {
                         std::cout << "Successfully saved to " << username << std::endl;
+                        std::cout << std::endl;
+                    }
                     printPlayerStats(player);
                     isSuccessful = false;
                     break;
