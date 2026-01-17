@@ -235,6 +235,8 @@ bool applyEffects(Player* player, const int moneyChange, const int energyChange,
     player->psyche = keepInRange(MIN_STAT, MAX_STAT, player->psyche);
     player->money = keepInRange(MIN_STAT, MAX_STAT, player->money);
 
+    printStatChange(moneyChange, energyChange, psycheChange, knowledgeChange);
+
     if (!player->energy)
         player->skipNextDay = true;
     return true;

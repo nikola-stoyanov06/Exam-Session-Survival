@@ -77,7 +77,6 @@ int getLength(int num)
     return res;
 }
 
-
 void inputUserName(char name[])
 {
     std::cin.ignore(100, '\n');

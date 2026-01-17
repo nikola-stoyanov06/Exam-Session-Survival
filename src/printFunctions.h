@@ -28,8 +28,12 @@ void printPartyChoices();
 void printRestChoices();
 void printWorkChoices();
 void printReturnChoices();
-void printStatLine(const char* label, int value);
+void printStatLine(const char* label, const int value);
+void printStringLine(const char* label);
 void printPlayerStats(const Player* player);
-
+void printStatChange(const int moneyChange, const int energyChange,
+	const int psycheChange, const int knowledgeChange);
+void printFailMessage(const Player* player, const char* message);
+void printEndMessage(const Player* player);
 
 #endif

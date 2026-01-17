@@ -117,12 +117,12 @@ bool isStillPlaying(Player* player)
     }
     if (player->money <= MIN_STAT)
     {
-        std::cout << "You've gone bankrupt!" << std::endl;
+        printFailMessage(player, "You are bankrupt!");
         return false;
     }
     if (player->psyche <= MIN_STAT)
     {
-        std::cout << "You have gone crazy and have left FMI." << std::endl;
+        printFailMessage(player, "You have gone crazy!");
         return false;
     }
     return true;
@@ -130,7 +130,6 @@ bool isStillPlaying(Player* player)
 void skipDay(Player* player)
 {
     std::cout << "You have tried too hard. You'll sleep it off tomorrow!" << std::endl;
-    std::cout << std::endl;
     player->skipNextDay = false;
     player->currentDay++;
     player->energy += 5;
@@ -163,9 +162,9 @@ const RandomEvent findEvent(int action, int subAction)
 void applyEvent(Player* player, int action, int subAction)
 {
     RandomEvent event = findEvent(action, subAction);
+    std::cout << event.message << std::endl;
     applyEffects(player, event.moneyChange, event.energyChange,
         event.psycheChange, event.knowledgeChange);
-    std::cout << event.message << std::endl;
     std::cout << std::endl;
 }
 
@@ -251,6 +250,7 @@ void gameLoop(Player* player, const int* examSchedule, const char* username, int
                 case 9:
                     if (saveGame(player, examSchedule, username, diff))
                     {
+                        std::cout << std::endl;
                         std::cout << "Successfully saved to " << username << std::endl;
                         std::cout << std::endl;
                     }
@@ -269,6 +269,7 @@ void gameLoop(Player* player, const int* examSchedule, const char* username, int
                     {
                         if (saveGame(player, examSchedule, username, diff))
                         {
+                            std::cout << std::endl;
                             std::cout << "Successfully saved to " << username << std::endl;
                             std::cout << std::endl;
                         }
@@ -285,9 +286,19 @@ void gameLoop(Player* player, const int* examSchedule, const char* username, int
         
 
         player->currentDay++;
+        if(diff == HARD)
+            player->knowledge -= 10;
+        else if (diff == MEDIUM)
+            player->knowledge -= 5;
+
+        keepInRange(MIN_STAT, MAX_STAT, player->knowledge);
+
         if (player->currentDay > SESSION_LENGTH)
         {
+            std::cout << std::endl;
             std::cout << "Session end reached";
+            std::cout << std::endl;
+            printEndMessage(player);
             isRunning = false;
         }
     }
