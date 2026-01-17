@@ -109,6 +109,33 @@ void applyExamChanges(Player* player, bool result)
         player->skipNextDay = true;
 }
 
+bool handleExam(Player* player, const int* examSchedule)
+{
+    int index = getExamIndex(examSchedule, player->currentDay);
+
+    if (index == -1)
+        return false;
+
+    std::cout << "Exam day!" << std::endl;
+    std::cout << "Good luck with your result!" << std::endl;
+    std::cout << std::endl;
+
+    bool passed = takeExam(player, index);
+
+    if (!passed)
+    {
+        player->psyche -= EXAM_PSYCHE_PENALTY;
+        player->psyche = keepInRange(MIN_STAT, MAX_STAT, player->psyche);
+    }
+    else
+    {
+        player->passedExams++;
+    }
+
+    applyExamChanges(player, passed);
+    return true;
+}
+
 bool isStillPlaying(Player* player)
 {
     if (player->energy <= MIN_STAT)
@@ -127,6 +154,7 @@ bool isStillPlaying(Player* player)
     }
     return true;
 }
+
 void skipDay(Player* player)
 {
     std::cout << "You have tried too hard. You'll sleep it off tomorrow!" << std::endl;
@@ -168,6 +196,90 @@ void applyEvent(Player* player, int action, int subAction)
     std::cout << std::endl;
 }
 
+bool handleAction(Player* player, const int* examSchedule,
+    const char* username, const int diff, int& action)
+{
+    action = chooseAction();
+    switch (action)
+    {
+        int choice;
+    case 1:
+        if (!study(player, choice))
+            return false;
+        else if (isEvent())
+            applyEvent(player, action, choice);
+        return true;
+        break;
+    case 2:
+        if (!eat(player, choice))
+            return false;
+        else if (isEvent())
+            applyEvent(player, action, choice);
+        return true;
+        break;
+    case 3:
+        if (!party(player, choice))
+            return false;
+        else if (isEvent())
+            applyEvent(player, action, choice);
+        return true;
+        break;
+    case 4:
+        if (!rest(player, choice))
+            return false;
+        else if (isEvent())
+            applyEvent(player, action, choice);
+        return true;
+        break;
+    case 5:
+        if (!work(player, choice))
+            return false;
+        else if (isEvent())
+            applyEvent(player, action, choice);
+        return true;
+        break;
+    case 9:
+        saveGame(player, examSchedule, username, diff);
+        printPlayerStats(player);
+        return false;
+        break;
+    case 10:
+    {
+        int exitChoice = chooseReturnOption();
+        if (exitChoice == RETURN_CODE)
+            return false;
+        if (exitChoice == MIN_ACTION)
+            saveGame(player, examSchedule, username, diff);
+
+        return true;
+        break;
+    }
+    default:
+        std::cout << "Incorrect action" << std::endl;
+        return false;
+        break;
+    }
+}
+
+void handleEndDay(Player* player, int diff)
+{
+    player->currentDay++;
+    if (diff == HARD)
+        player->knowledge -= 10;
+    else if (diff == MEDIUM)
+        player->knowledge -= 5;
+
+    player->knowledge = keepInRange(MIN_STAT, MAX_STAT, player->knowledge);
+}
+
+void printEndGame(const Player* player)
+{
+    std::cout << std::endl;
+    std::cout << "Session end reached";
+    std::cout << std::endl;
+    printEndMessage(player);
+}
+
 void gameLoop(Player* player, const int* examSchedule, const char* username, int diff)
 {
     if (!examSchedule || !username)
@@ -178,9 +290,7 @@ void gameLoop(Player* player, const int* examSchedule, const char* username, int
     {
         printPlayerStats(player);
 
-        bool isPlaying = isStillPlaying(player);
-
-        if (!isPlaying)
+        if (!isStillPlaying(player))
         {
             isRunning = false;
             continue;
@@ -191,114 +301,23 @@ void gameLoop(Player* player, const int* examSchedule, const char* username, int
             skipDay(player);
             continue;
         }
-        
-        bool isSuccessful = false;
 
-        int index = getExamIndex(examSchedule, player->currentDay);
 
-        if (index != -1)
+        if (!handleExam(player, examSchedule))
         {
-            std::cout << "Exam day!" << std::endl;
-            std::cout << "Good luck with your result!" << std::endl;
-            std::cout << std::endl;
-           
-            bool isTaken = takeExam(player, index);
-            isSuccessful = true;
-            if (!isTaken)
+            int action;
+            while (!handleAction(player, examSchedule, username, diff, action))
             {
-                player->psyche -= EXAM_PSYCHE_PENALTY;
-                player->psyche = keepInRange(MIN_STAT, MAX_STAT, player->energy);
             }
-            else
-            {
-                player->passedExams++;
-            }
-
-            applyExamChanges(player, isTaken);
-        }
-        while (!isSuccessful)
-        {
-            int action = chooseAction();
-            switch (action)
-            {
-                int choice;
-                case 1:
-                    isSuccessful = study(player, choice);
-                    if (isEvent())
-                        applyEvent(player, action, choice);
-                    break;
-                case 2:
-                    isSuccessful = eat(player, choice);
-                    if (isEvent())
-                        applyEvent(player, action, choice);
-                    break;
-                case 3:
-                    isSuccessful = party(player, choice);
-                    if (isEvent())
-                        applyEvent(player, action, choice);
-                    break;
-                case 4:
-                    isSuccessful = rest(player, choice);
-                    if (isEvent())
-                        applyEvent(player, action, choice);
-                    break;
-                case 5:
-                    isSuccessful = work(player, choice);
-                    if (isEvent())
-                        applyEvent(player, action, choice);
-                    break;
-                case 9:
-                    if (saveGame(player, examSchedule, username, diff))
-                    {
-                        std::cout << std::endl;
-                        std::cout << "Successfully saved to " << username << std::endl;
-                        std::cout << std::endl;
-                    }
-                    printPlayerStats(player);
-                    isSuccessful = false;
-                    break;
-                case 10:
-                {
-                    int choice = chooseReturnOption();
-                    if (choice == RETURN_CODE)
-                    {
-                        isSuccessful = false;
-                        break;
-                    }
-                    if (choice == MIN_ACTION)
-                    {
-                        if (saveGame(player, examSchedule, username, diff))
-                        {
-                            std::cout << std::endl;
-                            std::cout << "Successfully saved to " << username << std::endl;
-                            std::cout << std::endl;
-                        }
-                    }
-                    isSuccessful = true;
-                    isRunning = false;
-                    break;
-                }
-                default:
-                    std::cout << "Incorrect action" << std::endl;
-                    break;
-            }
+            if (action == RETURN_CODE)
+                break;
         }
         
-
-        player->currentDay++;
-        if(diff == HARD)
-            player->knowledge -= 10;
-        else if (diff == MEDIUM)
-            player->knowledge -= 5;
-
-        keepInRange(MIN_STAT, MAX_STAT, player->knowledge);
+        handleEndDay(player, diff);
 
         if (player->currentDay > SESSION_LENGTH)
         {
-            std::cout << std::endl;
-            std::cout << "Session end reached";
-            std::cout << std::endl;
-            printEndMessage(player);
+            printEndGame(player);
             isRunning = false;
         }
     }

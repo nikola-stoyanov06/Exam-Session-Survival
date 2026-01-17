@@ -47,6 +47,9 @@ bool saveGame(Player* player, const int examSchedule[], const char* username, co
         file << examSchedule[i] << " ";
 
     file.close();
+
+    std::cout << std::endl;
+    std::cout << "Saved successfully to " << username << std::endl;
     return true;
 }
 
@@ -83,6 +86,9 @@ bool loadGame(Player* player, int examSchedule[], char* username, int& diff)
     for (int i = 0; i < EXAM_COUNT; i++)
         file >> examSchedule[i];
 
-    return true;
     file.close();
+
+    std::cout << std::endl;
+    std::cout << "Loaded " << username << " successfully" << std::endl;
+    return true;
 }

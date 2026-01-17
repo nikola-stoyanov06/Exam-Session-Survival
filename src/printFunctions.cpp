@@ -6,7 +6,7 @@
 * Winter semester 2025/2026
 *
 * @author Nikola Stoyanov
-* @idnumber 3MI0600561* @compiler VS
+* @idnumber 3MI0600561* @compiler VC
 *
 * <file with print function implementations>
 *
@@ -237,6 +237,7 @@ void printEndMessage(const Player* player)
 {
     std::cout << std::endl;
     std::cout << "===================================" << std::endl;
+    printStringLine(" ");
     if (player->passedExams <= 1)
         printStringLine("YOU FAILED AND DROPPED OUT!");
     else if (player->passedExams <= 4)
