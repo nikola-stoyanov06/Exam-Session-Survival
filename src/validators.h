@@ -6,7 +6,7 @@
 * Winter semester 2025/2026
 *
 * @author Nikola Stoyanov
-* @idnumber 3MI0600561* @compiler VS
+* @idnumber 3MI0600561* @compiler VC
 *
 * <file with validator function definitions>
 *
