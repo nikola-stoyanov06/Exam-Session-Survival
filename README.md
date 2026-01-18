@@ -76,12 +76,13 @@ The player enters a username when creating a new game, which is used to save his
 - Incorporate difficulty better
   - Use difficulty to alter the stat changes (Using multiplier constants for each difficulty)
   - Change event probability based on difficulty (Higher difficulty -> higher chance of "Bad" events)
-- Improve game-design.
-  - Add user warnings for low stats.
-  - Rebalance actions, so every one has a purpose.
-  - Add passwords for better security.
-  - Generally improve game quality.
+- Improve game-design
+  - Add user warnings for low stats
+  - Rebalance actions, so every one has a purpose
+  - Add passwords for better security
+  - Generally improve game quality
 - Fully optimise the code
+- Implement partially successful actions based on difficulty/energy level. {I saw it in the project requirements file too late)
 
 ---
 
