@@ -167,7 +167,7 @@ void skipDay(Player* player)
 bool isEvent()
 {
     int random = randNumInRange(0, 99);
-    return random < 10;
+    return random < RANDOM_EVENT_CHANCE;
 }
 
 const RandomEvent findEvent(int action, int subAction)
