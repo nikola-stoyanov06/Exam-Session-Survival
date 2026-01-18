@@ -70,7 +70,7 @@ The player enters a username when creating a new game, which is used to save his
 
 ## Plans for the future
 
-- Polish and redesign the UI (visually)
+- Polish and redesign the UI
 - Add more random events per action (By possibly storing events in a matrix, instead of an array)
 - Consider storing random event data in .txt files instead of an array in a .cpp file.
 - Incorporate difficulty better
@@ -89,8 +89,10 @@ The player enters a username when creating a new game, which is used to save his
 
 1. Clone repo in a chosen directory on your PC
 2. Create a C++ console app project through Visual Studio in the same folder
-3. Inside Visual Studio, at the Solution Explorer window, right click "Source Files", then "Add" -> "Existing Item"
-4. Navigate to the /src folder and add all files inside.
+3. Inside Visual Studio, at the **Solution Explorer** window, right click **Source Files**, then **Add -> Existing Item**
+4. Navigate to the **/src** folder and add all files inside.
 5. Run the program!
+
+- If file save does not work initially: In **Solution Explorer**, right-click on your project. Then go to **Properties -> Configuration Properties -> Debugging**. Make sure the **Working Directory** is the same as the root of the cloned repository! You should be good to go now!
 
 ---
